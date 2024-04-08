@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+from sys import argv
+import os
+import shutil
+import subprocess
+
+
+def help():
+    help = """
+Usage: cooper [options] [args]
+-ef     for entry file.
+-D      for destination path
+-clean  this will delete every single item from the destination directory first
+        and then copy the content.
+
+Note: You can use ~ symbol to represent for home. ~ will be replaced by your
+      home directory path while parsing the entry file.
+    """
+    print(help)
+
+
+def copy_files(fromPath, toPath):
+    try:
+        cmd = f"cp -rv {fromPath} {toPath}"
+        subprocess.Popen(
+            cmd, shell=True,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        print(f"{fromPath} -> {toPath}")
+
+    except Exception as e:
+        print(f"ERROR: Failed to copy file from {fromPath} -> {toPath}\n{e}")
+
+
+def parse_args(cliargs):
+    if len(cliargs) == 1:
+        help()
+        exit(0)
+    clioptions = {'entry_file': None,
+                  'toPath': None,
+                  'clean': False,
+                  }
+
+    for i in range(0, len(cliargs)):
+        if cliargs[i].lower() == '-ef':
+            if os.path.exists(cliargs[i+1]):
+                clioptions['entry_file'] = cliargs[i+1]
+            else:
+                print(f"ERROR: {cliargs[i+1]: No such file.}")
+                exit(1)
+
+        elif cliargs[i] == '-D':
+            if os.path.isdir(cliargs[i+1]):
+                clioptions['toPath'] = cliargs[i+1]
+            else:
+                print(f"ERROR: {cliargs[i+1]: No such directory.}")
+                exit(1)
+        elif cliargs[i] == '-clean':
+            clioptions['clean'] = True
+
+    if clioptions['entry_file'] is None or clioptions['toPath'] is None:
+        print("Invaild arguments.")
+        help()
+        exit(1)
+
+    return clioptions
+
+
+if __name__ == "__main__":
+    clioptions = parse_args(argv)
+
+    with open(clioptions['entry_file'], "r") as f:
+        files = [line.rstrip('\n').replace("~", os.path.expanduser("~"))
+                 for line in f if line.rstrip('\n') != '']
+        for i in files:
+            print(f"Entry Found: {i}")
+
+    if clioptions['clean']:
+        try:
+            shutil.rmtree(clioptions['toPath'])
+            os.mkdir(clioptions['toPath'])
+        except Exception as e:
+            print(f"Failed to clean the destination directory\n{e}")
+
+    # copying files
+
+    for i in files:
+        print("Copying files...")
+        copy_files(i, clioptions['toPath'])
+
+    exit(0)

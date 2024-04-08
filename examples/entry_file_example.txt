@@ -1,0 +1,5 @@
+~/.config/nvim/
+~/.config/hypr/
+~/.bashrc
+~/.zshrc
+/home/user/.config/waybar
