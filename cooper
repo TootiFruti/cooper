@@ -73,6 +73,11 @@ if __name__ == "__main__":
     with open(clioptions['entry_file'], "r") as f:
         files = [line.rstrip('\n').replace("~", os.path.expanduser("~"))
                  for line in f if line.rstrip('\n') != '']
+        if files[0] != "CooperEntryFile":
+            print("ERROR: Not a vaild CooperEntryFile")
+            exit(1)
+        else:
+            files.pop(0)
         for i in files:
             print(f"Entry Found: {i}")
 
@@ -85,8 +90,8 @@ if __name__ == "__main__":
 
     # copying files
 
+    print("Copying files...")
     for i in files:
-        print("Copying files...")
         copy_files(i, clioptions['toPath'])
 
     exit(0)

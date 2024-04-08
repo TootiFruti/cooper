@@ -1,3 +1,4 @@
+CooperEntryFile
 ~/.config/nvim/
 ~/.config/hypr/
 ~/.bashrc
